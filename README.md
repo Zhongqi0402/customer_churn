@@ -3,7 +3,7 @@
 - Project **Predict Customer Churn** of ML DevOps Engineer Nanodegree Udacity
 
 ## Project Description
-Your project description here.
+Predict credit card customer churn
 
 ## Files and data description
 Overview of the files and data present in the root directory. 
