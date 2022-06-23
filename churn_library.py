@@ -198,7 +198,8 @@ def classification_report_image(y_train,
                                 y_train_preds_lr,
                                 y_train_preds_rf,
                                 y_test_preds_lr,
-                                y_test_preds_rf):
+                                y_test_preds_rf,
+                                X_test):
     '''
     produces classification report for training and testing results and stores report as image
     in images folder
@@ -209,11 +210,30 @@ def classification_report_image(y_train,
             y_train_preds_rf: training predictions from random forest
             y_test_preds_lr: test predictions from logistic regression
             y_test_preds_rf: test predictions from random forest
+            X_test: training explanatory variable
 
     output:
              None
     '''
-    pass
+    lrc = joblib.load('./models/logistic_model.pkl')
+    cv_rfc = joblib.load('./models/rfc_model.pkl')
+    
+    # plot roc curve for both models in same plot
+    lrc_plot = plot_roc_curve(lrc, X_test, y_test)
+    plt.figure(figsize=(15, 8))
+    ax = plt.gca()
+    rfc_disp = plot_roc_curve(cv_rfc, X_test, y_test, ax=ax, alpha=0.8)
+    lrc_plot.plot(ax=ax, alpha=0.8)
+    plt.savefig("./images/results/roc_curve.png")
+    plt.cla()
+    # classified bar chart using shap
+    explainer = shap.TreeExplainer(cv_rfc)
+    shap_values = explainer.shap_values(X_test)
+    shap.summary_plot(shap_values, X_test, plot_type="bar", show=False)
+    plt.savefig("./images/results/cate_barChart.png")
+    
+    
+    
 
 
 def feature_importance_plot(model, X_data, output_pth):
@@ -227,10 +247,31 @@ def feature_importance_plot(model, X_data, output_pth):
     output:
              None
     '''
-    pass
+    # Calculate feature importances
+    importances = model.feature_importances_
+    # Sort feature importances in descending order
+    indices = np.argsort(importances)[::-1]
 
+    # Rearrange feature names so they match the sorted feature importances
+    names = [X_data.columns[i] for i in indices]
 
-if __name__ == "__main__":
+    # Create plot
+    plt.figure(figsize=(20,5))
+
+    # Create plot title
+    plt.title("Feature Importance")
+    plt.ylabel('Importance')
+
+    # Add bars
+    plt.bar(range(X_data.shape[1]), importances[indices])
+
+    # Add feature names as x-axis labels
+    plt.xticks(range(X_data.shape[1]), names, rotation=90)
+    plt.savefig(output_pth)
+    return
+
+def main():
+    # prepare variables
     category_lst = [
         'Gender',
         'Education_Level',
@@ -239,21 +280,38 @@ if __name__ == "__main__":
         'Card_Category'                
     ]
     response = 'Churn'
+    
+    # 1. import dataset
     df = import_data("./data/bank_data.csv")
+    
+    # 2. perform EDA on data
     perform_eda(df)
+    
+    # 3. and 4. encode categorical variable and split dataset
     response_var = df[response]
-    result_df = encoder_helper(df, category_lst, response)
-    X_train, X_test, y_train, y_test = perform_feature_engineering(result_df, response_var)
+    X_df = encoder_helper(df, category_lst, response)
+    X_train, X_test, y_train, y_test = perform_feature_engineering(X_df, response_var)
+    
+    # 5. train the model and save models
     y_train_preds_lr, y_train_preds_rf, y_test_preds_lr, y_test_preds_rf = train_models(X_train, X_test, y_train, y_test)
-    # scores
-    print('random forest results')
-    print('test results')
-    print(classification_report(y_test, y_test_preds_rf))
-    print('train results')
-    print(classification_report(y_train, y_train_preds_rf))
-
-    print('logistic regression results')
-    print('test results')
-    print(classification_report(y_test, y_test_preds_lr))
-    print('train results')
-    print(classification_report(y_train, y_train_preds_lr))
+    
+    # load trained model for later evaluation purpose
+    lrc = joblib.load('./models/logistic_model.pkl')
+    cv_rfc = joblib.load('./models/rfc_model.pkl')
+    
+    # 6. generate test report and images
+    classification_report_image(y_train,
+                                y_test,
+                                y_train_preds_lr,
+                                y_train_preds_rf,
+                                y_test_preds_lr,
+                                y_test_preds_rf,
+                                X_test)
+    
+    # 7. generate importances plot and save result
+    path_for_importance = "./images/results/feature_importances.png"
+    feature_importance_plot(cv_rfc, X_df, path_for_importance)
+    
+if __name__ == "__main__":
+    main()
+    
