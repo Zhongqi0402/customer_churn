@@ -1,0 +1,3 @@
+#!/Users/zhongqi_yue/Desktop/customer_churn/bin/python
+from numba.pycc import main
+main()
