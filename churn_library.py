@@ -159,8 +159,7 @@ def train_models(X_train, X_test, y_train, y_test):
               y_train: y training data
               y_test: y testing data
     output:
-              training predictions and testing predictions from all
-              models built in this function
+              None
     '''
     # random forest and logistic regression
     rfc = RandomForestClassifier(random_state=42)
