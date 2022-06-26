@@ -7,19 +7,19 @@ training and testing models. I made sure the code has high standard documentatio
 as well as proper testing and logging to track process. This pipeline would meet production level.
 
 ## Files and data description
-The file structure is as follows.
-.
-├── churn_notebook.ipynb # Contains the code to be refactored
-├── churn_library.py     # Define the functions
-├── churn_script_logging_and_tests.py # Finish tests and logs
-├── README.md            # Provides project overview, and instructions to use the code
-├── data                 # Read this data
-│   └── bank_data.csv
-├── images               # Store EDA results 
-│   ├── eda
-│   └── results
-├── logs                 # Store logs
-└── models               # Store models
+The file structure is as follows.  
+.root  
+├── churn_notebook.ipynb # Contains the code to be refactored. 
+├── churn_library.py     # Define the functions. 
+├── churn_script_logging_and_tests.py # Finish tests and logs. 
+├── README.md            # Provides project overview, and instructions to use the code. 
+├── data                 # Read this data. 
+│   └── bank_data.csv. 
+├── images               # Store EDA results   
+│   ├── eda. 
+│   └── results. 
+├── logs                 # Store logs. 
+└── models               # Store models. 
 
 ## Running Files
 In order to run the scripts, make sure you are at root folder of this project.
